@@ -1,0 +1,14 @@
+import { JSDOM } from 'jsdom';
+const dom=new JSDOM('<!doctype html><html><body></body></html>',{url:'http://localhost/',pretendToBeVisual:true});
+for(const name of ['window','document','navigator','HTMLElement','HTMLInputElement','HTMLButtonElement','HTMLFormElement','HTMLImageElement','Element','Node','NodeFilter','Document','DocumentFragment','MutationObserver','CustomEvent','Event','MouseEvent','KeyboardEvent','SVGElement'])Object.defineProperty(globalThis,name,{value:dom.window[name],configurable:true,writable:true});
+globalThis.getComputedStyle=dom.window.getComputedStyle.bind(dom.window);
+globalThis.requestAnimationFrame=dom.window.requestAnimationFrame.bind(dom.window);
+globalThis.cancelAnimationFrame=dom.window.cancelAnimationFrame.bind(dom.window);
+globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+window.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),media:query,onchange:null,addListener(){},removeListener(){},addEventListener(){},removeEventListener(){},dispatchEvent(){return false;}});
+globalThis.ResizeObserver=window.ResizeObserver=class{observe(){}unobserve(){}disconnect(){}};
+globalThis.IntersectionObserver=window.IntersectionObserver=class{observe(){}unobserve(){}disconnect(){}};
+globalThis.PointerEvent=window.PointerEvent=window.MouseEvent;
+Element.prototype.scrollIntoView=function(){};
+Element.prototype.hasPointerCapture=function(){return false;};Element.prototype.setPointerCapture=function(){};Element.prototype.releasePointerCapture=function(){};
+Element.prototype.scrollBy=function(){};
