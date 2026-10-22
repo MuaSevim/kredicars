@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
 import { TeamPage } from '@/components/team-page';
-export const metadata:Metadata={title:'Ekibimiz'};
+import { pageMetadata } from '@/lib/seo';
+export const metadata=pageMetadata('Ekibimiz','KrediCars’ın 17 kişilik ekibini tanıyın. İsim, görev ve şube bilgileriyle size yakın ekibi bulun.','/ekibimiz/');
 export default function Page(){return <TeamPage/>;}
