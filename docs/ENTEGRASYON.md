@@ -1,4 +1,4 @@
 # Demo entegrasyon sınırı
-Bu bağımsız konseptte `LeadDialog` içindeki `live` değeri bilinçli olarak `false` durumundadır. Hiçbir başvuru veya geri arama verisi sunucuya gönderilmez.
-Üretime geçiş ayrı bir çalışma gerektirir: gerçek servis sözleşmesi, sunucu doğrulaması, saklama/erişim politikaları, şirketin güncel aydınlatma metni, gerekli hukuki dayanaklar ve onay süreçleri. Mevcut kaynakta bulunan gönderim adaptörü üretime hazır bir backend değildir.
-Video ve harita yalnızca kullanıcı açtığında harici sağlayıcıya bağlanır.
+Sunum sürümündeki `LeadDialog` hiçbir başvuru veya geri arama verisini sunucuya göndermez. Gönderim adaptörü ve endpoint kodu bulunmaz; ortam değişkenleriyle etkinleştirilemez.
+Gerçek servis entegrasyonu ve onaylı şirket metinleri ayrı bir üretim çalışmasıdır; bu sunumun kapsamına dahil değildir.
+Video yalnızca kullanıcı oynatınca YouTube’a bağlanır. Harita yerel şematik görünüm kullanır; Google/Apple yol tarifi bağlantıları kullanıcı tıklayınca harici sağlayıcıda açılır.
