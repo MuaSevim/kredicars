@@ -1,14 +1,15 @@
 'use client';
 import { useEffect,useRef,useState } from 'react';
-import { ArrowLeft,ArrowRight,ArrowUpRight,Play,X } from 'lucide-react';
+import { ArrowLeft,ArrowRight,ArrowUpRight,Play,X,Star,Quote } from 'lucide-react';
 import { testimonials } from '@/lib/content';
+import { demoReviews } from '@/lib/demo-fixtures';
 
 export function Testimonials(){
  const rail=useRef<HTMLDivElement>(null);
  const [position,setPosition]=useState({start:1,end:1,atStart:true,atEnd:false});const [playing,setPlaying]=useState<string|null>(null);
  const updatePosition=()=>{
   const el=rail.current;if(!el)return;const stride=(el.children[0] as HTMLElement).offsetWidth+20;
-  setPosition({start:Math.floor((el.scrollLeft+1)/stride)+1,end:Math.min(testimonials.length,Math.max(1,Math.floor((el.scrollLeft+el.clientWidth+20)/stride))),atStart:el.scrollLeft<2,atEnd:el.scrollLeft+el.clientWidth>=el.scrollWidth-2});
+  setPosition({start:Math.floor((el.scrollLeft+1)/stride)+1,end:Math.min(testimonials.length*2,Math.max(1,Math.floor((el.scrollLeft+el.clientWidth+20)/stride))),atStart:el.scrollLeft<2,atEnd:el.scrollLeft+el.clientWidth>=el.scrollWidth-2});
  };
  useEffect(()=>{updatePosition();const observer=new ResizeObserver(updatePosition);if(rail.current)observer.observe(rail.current);return()=>observer.disconnect();},[]);
  const stop=()=>{setPlaying(null);requestAnimationFrame(()=>rail.current?.querySelector<HTMLButtonElement>('.inline-play')?.focus({preventScroll:true}));};
@@ -17,9 +18,9 @@ export function Testimonials(){
   el.scrollBy({left:direction*((el.children[0] as HTMLElement).offsetWidth+20),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
  };
  return <section className="section stories-section" id="musteriler"><div className="shell">
-  <div className="section-heading"><div><span className="section-kicker">Yolun en insani tarafı</span><h2>Hikâyeyi bir de<br/><span>onlardan dinleyin.</span></h2></div><div><p>Müşterilerimizin kendi anlatımı ve<br/>KrediCars arşivinden gerçek anlar.</p><div className="rail-controls"><button aria-label="Önceki müşteri kartı" onClick={()=>move(-1)} disabled={position.atStart}><ArrowLeft size={18}/></button><span aria-live="polite">{position.start}{position.end>position.start?'–'+position.end:''} / {testimonials.length}</span><button aria-label="Sonraki müşteri kartı" onClick={()=>move(1)} disabled={position.atEnd}><ArrowRight size={18}/></button></div></div></div>
+  <div className="section-heading"><div><span className="section-kicker">Yolun en insani tarafı</span><h2>Hikâyeyi bir de<br/><span>onlardan dinleyin.</span></h2></div><div><p>Gerçek arşiv anları ve tasarımı gösteren<br/>açıkça etiketli örnek yorumlar.</p><div className="rail-controls"><button aria-label="Önceki müşteri kartı" onClick={()=>move(-1)} disabled={position.atStart}><ArrowLeft size={18}/></button><span aria-live="polite">{position.start}{position.end>position.start?'–'+position.end:''} / {testimonials.length*2}</span><button aria-label="Sonraki müşteri kartı" onClick={()=>move(1)} disabled={position.atEnd}><ArrowRight size={18}/></button></div></div></div>
   <div className="stories-rail" ref={rail} onScroll={updatePosition}>
-   {testimonials.map(t=><article key={t.id} className={'customer-card '+(t.videoId?'has-video':'')}>
+   {testimonials.flatMap((t,i)=>[<article key={t.id} className={'customer-card '+(t.videoId?'has-video':'')}>
     <div className="customer-media">
      {playing===t.id?<>
       <iframe src={`https://www.youtube-nocookie.com/embed/${t.videoId}?autoplay=1&rel=0`} title="Samet Bey’in KrediCars deneyimi" allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen/>
@@ -30,8 +31,8 @@ export function Testimonials(){
      </>}
     </div>
     <div className="customer-caption"><h3>{t.title}</h3><a href={t.source} target="_blank" rel="noreferrer">{t.videoId?'YouTube’da da izleyebilirsiniz':'Kaynak fotoğrafı görüntüle'} <ArrowUpRight size={16}/></a>{t.videoId&&<p className="source-note">Video internet bağlantısı gerektirir. Açılmazsa YouTube bağlantısını kullanabilirsiniz.</p>}</div>
-   </article>)}
+   </article>,<article key={demoReviews[i].id} className="customer-card comment-card"><span className="review-demo-label">Örnek yorum · Demo veri</span><div className="review-stars" aria-label="5 yıldız; örnek değerlendirme">{Array.from({length:5},(_,j)=><Star key={j} size={21} fill="currentColor"/>)}</div><Quote size={34} className="review-quote"/><blockquote>{demoReviews[i].text}</blockquote><div className="review-person"><span aria-hidden="true">{String.fromCharCode(65+i)}</span><div><strong>{demoReviews[i].name}</strong><small>Gerçek müşteri beyanı değildir.</small></div></div></article>])}
   </div>
-  <p className="source-note">Fotoğraflardan şehir, kredi tutarı veya sonuç çıkarımı yapılmamıştır. Müşteri alıntısı eklenmemiştir.</p>
+  <p className="source-note">Fotoğraf ve video kaynak arşivindendir. Yıldızlı yorumlar yalnızca tasarım için üretilmiş demo verisidir; gerçek kişilere veya fotoğraflara ait değildir.</p>
  </div></section>;
 }

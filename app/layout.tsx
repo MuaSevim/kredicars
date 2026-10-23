@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import './demo.css';
+import './presentation.css';
 import localFont from 'next/font/local';
 import { indexable } from '@/lib/seo';
 const manrope=localFont({src:'../public/fonts/manrope.ttf',variable:'--font-manrope',weight:'200 800',display:'swap'});

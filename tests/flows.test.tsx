@@ -111,10 +111,14 @@ test('help hands the selected topic to the same callback form and Escape returns
  render(<Landing/>);const user=userEvent.setup();
  const trigger=screen.getByRole('button',{name:'Yardım panelini aç'});
  await user.click(trigger);await user.click(screen.getByRole('button',{name:'Hangi bilgiler gerekiyor?'}));
- assert.ok(within(screen.getByRole('dialog')).getByRole('status').textContent?.includes('adınız ve telefonunuz'));
+  assert.ok(within(screen.getByRole('dialog')).getByRole('log').textContent?.includes('adınız ve telefonunuz'));
  await user.click(within(screen.getByRole('dialog')).getByRole('button',{name:'Biz sizi arayalım'}));
  await waitFor(()=>assert.ok(screen.getByText('Görüşme konusu: Hangi bilgiler gerekiyor?')));
  await user.keyboard('{Escape}');
  await waitFor(()=>assert.equal(screen.queryByRole('dialog'),null));
  assert.equal(document.activeElement,trigger);
+});
+
+test('helper is non-modal and accepts a local chat message',()=>{
+ render(<Landing/>);fireEvent.click(screen.getByRole('button',{name:'Yardım panelini aç'}));assert.equal(screen.getByRole('dialog').getAttribute('aria-modal'),'false');fireEvent.change(screen.getByLabelText('Mesajınız'),{target:{value:'Ödeme seçenekleri'}});fireEvent.submit(screen.getByLabelText('Mesajınız').closest('form')!);assert.ok(screen.getByRole('log').textContent?.includes('Ödeme seçenekleri'));fireEvent.keyDown(screen.getByRole('dialog'),{key:'Escape'});assert.equal(screen.queryByRole('dialog'),null);
 });

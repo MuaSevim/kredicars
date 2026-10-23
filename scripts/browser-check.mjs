@@ -35,9 +35,19 @@ try{
  await page.getByRole('button',{name:'Samet Bey’in deneyimi, videoyu izle'}).click();
  assert.equal(await page.locator('.customer-media iframe').count(),1);assert.equal(await page.getByRole('dialog').count(),0);
  await page.getByRole('button',{name:'Videoyu kapat'}).click();
- for(let i=0;i<5&&!await page.getByRole('button',{name:'Sonraki müşteri kartı'}).isDisabled();i++)await page.getByRole('button',{name:'Sonraki müşteri kartı'}).click();
+ for(let i=0;i<12&&!await page.getByRole('button',{name:'Sonraki müşteri kartı'}).isDisabled();i++){
+  const before=await page.locator('.stories-rail').evaluate(el=>el.scrollLeft);
+  await page.getByRole('button',{name:'Sonraki müşteri kartı'}).click();
+  await page.waitForFunction(x=>document.querySelector('.stories-rail').scrollLeft>x+1,before);
+  await page.waitForFunction(()=>{const el=document.querySelector('.stories-rail');return document.querySelector('[aria-label="Sonraki müşteri kartı"]').disabled===(el.scrollLeft+el.clientWidth>=el.scrollWidth-2);});
+ }
  assert.ok(await page.getByRole('button',{name:'Sonraki müşteri kartı'}).isDisabled());
- for(let i=0;i<5&&!await page.getByRole('button',{name:'Önceki müşteri kartı'}).isDisabled();i++)await page.getByRole('button',{name:'Önceki müşteri kartı'}).click();
+ for(let i=0;i<12&&!await page.getByRole('button',{name:'Önceki müşteri kartı'}).isDisabled();i++){
+  const before=await page.locator('.stories-rail').evaluate(el=>el.scrollLeft);
+  await page.getByRole('button',{name:'Önceki müşteri kartı'}).click();
+  await page.waitForFunction(x=>document.querySelector('.stories-rail').scrollLeft<x-1,before);
+  await page.waitForFunction(()=>document.querySelector('[aria-label="Önceki müşteri kartı"]').disabled===(document.querySelector('.stories-rail').scrollLeft<2));
+ }
  assert.ok(await page.getByRole('button',{name:'Önceki müşteri kartı'}).isDisabled());
  await page.getByRole('button',{name:'Mersin',exact:true}).click();await page.getByText('Yelda Dönmez',{exact:true}).waitFor();
  await page.getByRole('link',{name:'Şubeyi ve ekibi tanıyın'}).click();await page.waitForURL('**/subeler/mersin/');
@@ -46,7 +56,13 @@ try{
  await page.getByRole('textbox',{name:'Yazılarda ara'}).fill('zzzz');await page.getByText('Bu aramada bir yazı bulamadık.').waitFor();
  await page.getByRole('link',{name:'KrediCars ana sayfa',exact:true}).first().click();await page.waitForURL(base+'/');
  for(const opener of ['Yardım panelini aç','Menüyü aç']){
-  await page.getByRole('button',{name:opener}).click();
+   await page.getByRole('button',{name:opener}).click();
+   if(opener==='Yardım panelini aç'){
+    assert.equal(await page.getByRole('dialog').getAttribute('aria-modal'),'false');
+    await page.getByLabel('Mesajınız').fill('Ödeme seçenekleri');await page.getByRole('button',{name:'Mesajı önizle'}).click();
+    await page.getByRole('log').getByText('Ödeme seçenekleri',{exact:true}).waitFor();
+    await page.getByRole('button',{name:'Hangi bilgiler gerekiyor?',exact:true}).click();
+   }
   await page.getByRole('dialog').getByRole('button',{name:'Biz sizi arayalım',exact:true}).click();
   await page.getByRole('heading',{name:'Sizi arayalım.'}).waitFor();await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'detached'});
   assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('aria-label')),opener);
@@ -62,6 +78,14 @@ try{
   assert.deepEqual(await page.locator('img').evaluateAll(images=>images.filter(i=>!i.naturalWidth).map(i=>i.src)),[],route);
  }
  await page.goto(base,{waitUntil:'networkidle'});await page.locator('img').evaluateAll(images=>images.forEach(i=>i.loading='eager'));await page.waitForFunction(()=>[...document.images].every(i=>i.complete));
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.waitForFunction(()=>getComputedStyle(document.querySelector('.car-wheel')).animationPlayState==='running');
+ const wheel=await page.locator('.car-wheel').first().evaluate(el=>getComputedStyle(el).transform);
+ await page.waitForFunction(before=>getComputedStyle(document.querySelector('.car-wheel')).transform!==before,wheel);
+ assert.equal(await page.locator('.partner-track').evaluate(el=>getComputedStyle(el).animationName),'partners-drift');
+ await page.getByRole('button',{name:'Partner akışını duraklat'}).click();assert.equal(await page.locator('.partner-track').evaluate(el=>getComputedStyle(el).animationPlayState),'paused');
+ await page.evaluate(()=>window.scrollTo({top:document.querySelector('#musteriler').getBoundingClientRect().top+scrollY,behavior:'instant'}));await page.waitForFunction(()=>getComputedStyle(document.querySelector('.car-wheel')).animationPlayState==='paused');
+ await page.evaluate(()=>scrollTo(0,0));await page.emulateMedia({reducedMotion:'reduce'});
  await page.screenshot({path:path.join(artifacts,'mobile-390.png'),fullPage:true});await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:path.join(artifacts,'desktop-1440.png'),fullPage:true});
  assert.deepEqual(errors,[]);assert.deepEqual(consoleErrors,[]);
  const report={routes:routes.length,widths:[390,360,768,1024,1440],posts,errors,consoleErrors,artifacts};
