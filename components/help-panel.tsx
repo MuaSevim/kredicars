@@ -1,0 +1,19 @@
+'use client';
+import { useEffect,useRef,useState } from 'react';
+import { ArrowRight,MessageCircle,Send,X } from 'lucide-react';
+import { faqs,helpTopics } from '@/lib/content';
+type Message={id:number;role:'user'|'helper';text:string};
+export function HelpPanel({onCallback}:{onCallback:(topic?:string,returnFocus?:HTMLElement)=>void}){
+ const [open,setOpen]=useState(false);const [input,setInput]=useState('');const [messages,setMessages]=useState<Message[]>([]);
+ const trigger=useRef<HTMLButtonElement>(null);const panel=useRef<HTMLElement>(null);const feed=useRef<HTMLDivElement>(null);
+ const close=()=>{setOpen(false);trigger.current?.focus({preventScroll:true});};
+ useEffect(()=>{if(open)panel.current?.focus({preventScroll:true});},[open]);
+ useEffect(()=>{feed.current?.scrollTo?.({top:feed.current.scrollHeight,behavior:'instant'});},[messages]);
+ useEffect(()=>{if(!open||!window.visualViewport)return;const viewport=window.visualViewport;const resize=()=>{const keyboard=Math.max(0,window.innerHeight-viewport.height-viewport.offsetTop);panel.current?.style.setProperty('--helper-bottom',keyboard>100?`${keyboard+12}px`:'82px');panel.current?.style.setProperty('--helper-height',`${viewport.height-104}px`);};resize();viewport.addEventListener('resize',resize);return()=>viewport.removeEventListener('resize',resize);},[open]);
+ function ask(question:string){
+  const topic=helpTopics.find(t=>t.question===question);
+  const answer=topic?.faqIndex!=null?faqs[topic.faqIndex][1]:'Bu konuda en doğru yanıtı ekibimizle birlikte netleştirebiliriz. Aşağıdaki görüşme düğmesiyle aynı kısa forma geçebilirsiniz. Bu önizlemede mesajınız gönderilmez.';
+  setMessages(m=>[...m,{id:m.length,role:'user',text:question},{id:m.length+1,role:'helper',text:answer}]);setInput('');
+ }
+ return <><button ref={trigger} className="help-trigger" aria-label={open?'Yardım panelini kapat':'Yardım panelini aç'} aria-expanded={open} aria-controls="helper-chat" onClick={()=>open?close():setOpen(true)}>{open?<X size={22}/>:<MessageCircle size={22}/>}<span>{open?'Kapat':'Bir sorunuz mu var?'}</span></button>{open&&<section id="helper-chat" className="helper-chat" role="dialog" aria-modal="false" aria-labelledby="helper-title" tabIndex={-1} ref={panel} onKeyDown={e=>{if(e.key==='Escape'){e.stopPropagation();close();}}}><header className="helper-top"><div className="helper-avatar"><MessageCircle size={23}/></div><div><h2 id="helper-title">KrediCars yardım</h2><p>Birlikte netleştirelim.</p></div><button onClick={close} aria-label="Sohbeti kapat"><X size={20}/></button></header><div className="helper-feed" ref={feed}><p className="helper-disclosure">Hazır yanıtlarla önizleme · Canlı danışman veya yapay zekâ değildir.</p><div className="chat-bubble helper">Merhaba! Araç finansmanı yolculuğunda nereden başlamak istersiniz?</div><div className="helper-chips">{helpTopics.map(t=><button key={t.question} onClick={()=>ask(t.question)}>{t.question}<ArrowRight size={14}/></button>)}</div><div className="chat-messages" role="log" aria-live="polite" aria-relevant="additions">{messages.map(m=><div key={m.id} className={'chat-bubble '+m.role}>{m.text}</div>)}</div>{messages.length>0&&<button className="helper-callback" onClick={()=>{setOpen(false);onCallback(messages.filter(m=>m.role==='user').at(-1)?.text,trigger.current??undefined);}}>Biz sizi arayalım <ArrowRight size={16}/></button>}</div><form className="helper-composer" onSubmit={e=>{e.preventDefault();if(input.trim())ask(input.trim());}}><label className="sr-only" htmlFor="helper-input">Mesajınız</label><input id="helper-input" value={input} onChange={e=>setInput(e.target.value)} placeholder="Bir soru yazın…" maxLength={500} autoComplete="off"/><button type="submit" disabled={!input.trim()} aria-label="Mesajı önizle"><Send size={18}/></button><small>Mesajlar gönderilmez. Kişisel bilgi paylaşmayın.</small></form></section>}</>;
+}

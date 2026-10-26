@@ -1,60 +1,50 @@
-# KrediCars — Studio Demo
+# KrediCars — Yerel sunum sürümü
 
-Konuşulan marka ve kullanıcı deneyimi yönünün bağımsız Next.js demosu. Orijinal KrediCars logosu, mavi/turuncu marka renkleri, açık zemin ve özel SVG illüstrasyonu kullanır. Önceki proje değiştirilmedi. Yayınlanmadı.
+Next.js 16.4.2 App Router, React, TypeScript, Tailwind, shadcn/Radix, Motion ve Manrope altyapısı korunmuştur. Üretime yayınlanmamıştır.
 
 ## Çalıştırma
 
-Node.js 24 önerilir. ZIP'i çıkarıp bu klasörde terminal açın:
+Mevcut kurulum pnpm kullanır; paket veya major sürüm değiştirilmedi.
 
 ```sh
-npm ci
-npm run dev
+pnpm dev
 ```
 
-Tarayıcıda http://localhost:3000 adresini açın.
+Geliştirme: http://localhost:3000
+
+Production çıktısından sunum (önerilen):
 
 ```sh
-npm test
-npm run typecheck
-npm run build
+pnpm build
+pnpm start --port 3001
 ```
 
-`out/` klasörü statik yayın çıktısıdır. HTML dosyasını çift tıklamak yerine bir HTTP sunucusu kullanın. Kaynak proje Git'e aktarılabilir. `npm start` statik export için kullanılmaz.
+Sunum: http://127.0.0.1:3001 — `start` yalnızca `out/` çıktısını yerelde sunar; API içermez. `next start`, statik export için uygun değildir. `scripts/finalize-export.mjs`, Next 16.4’ün Windows’ta iç içe bıraktığı segment payload’larının tarayıcının istediği noktalı isimlerle kopyalarını üretir; framework dosyalarına dokunmaz.
 
-## Deneyebilecekleriniz
+```sh
+pnpm test
+pnpm typecheck
+```
 
-- Açık zeminli ortalanmış hero ve özel çizilmiş yol/araç/belge illüstrasyonu.
-- Bireysel/ticari seçim, hazır araç tutarları, serbest fiyat ve peşinat girişi, peşinat kaydırıcısı.
-- Finansman ihtiyacının canlı hesaplanması ve geçersiz tutarların engellenmesi.
-- Bütçenin üç adımlı görüşme formuna aktarılması; hata, geri dönüş ve kontrol ekranları.
-- Ayrı geri arama formu; aranma tercihi.
-- Klavye ile gezilebilen süreç kartları.
-- Mevcut KrediCars arşivinden müşteri videosu; yalnızca tıklayınca yüklenir.
-- Ekip sayfasında 17 kişi, şube filtresi ve Türkçe arama.
-- Şube seçimiyle adres, ekip ve harita işaretinin birlikte değişmesi.
-- İsteğe bağlı Google Haritalar görünümü, yol tarifi, SSS.
-- Mobil stiller, azaltılmış hareket tercihi, modal kapanışında odağın geri dönüşü.
+Mevcut Playwright kurulumuyla production tarayıcı testi: `pnpm test:browser` (önizleme 3001’de açık olmalı). Farklı kurulum için `PLAYWRIGHT_MODULE` ve `PREVIEW_URL` kullanılabilir. Test uygulamaya bağımlılık eklemez; ekran görüntülerini sistemin `Temp/opencode/kredicars-check/` klasörüne yazar.
 
-## Demo sınırları
+## Sunum akışı
 
-**Bu demo kişisel veri göndermez ve gerçek başvuru oluşturmaz.** Formlarda örnek bilgiler kullanın. Çevre değişkenleri verilse bile gönderim bu sürümde kapalıdır.
+Ana sayfa → Kredini hesapla → tutar veya aylık taksit → Başvuruya devam et → bütçe/iletişim/kontrol → demo tamamlanması → müşteri videosu → Mersin şubesi → ilgili rehber → blog → ana sayfa. Yardım düğmesinden aynı geri arama formuna geçilebilir.
 
-Hesaplama yalnızca araç fiyatı eksi peşinattır; faiz, taksit, kredi uygunluğu veya onay hesaplamaz. Banka, SMS, CRM entegrasyonu bulunmaz. Canlı harita ve video, kullanıcı açtığında üçüncü taraflara bağlanır.
+## İçerik ve sınırlar
 
-Logo, personel, şube ve müşteri görselleri önceki sağlanan KrediCars kaynaklarından gelir; güncel görevler, adresler, kullanım izinleri ve kurum ilişkileri ticari yayın öncesinde şirketçe teyit edilmelidir. Müşteri adına yorum veya puan uydurulmadı. Yeşil karttaki metin, müşteri alıntısı olmadığı belirtilen editoryal marka metnidir. SVG haritadaki işaretler şehir merkezlerini gösterir; yol tarifi bağlantısı şube adresini kullanır.
+- `lib/content.ts`: kaynaklı ekip, dört şube, seçilmiş kurum logoları, altı belgeli ödül, müşteri arşivi ve SSS.
+- `lib/articles.ts`: sekiz gerçek kaynaktan sadeleştirilmiş arşiv yazısı. Kaynakta olmayan yayın tarihleri eklenmedi.
+- `lib/demo-fixtures.ts`: ayrı tutulan örnek kampanya ve hesaplama varsayımları.
+- `lib/finance.ts`: anüite, ters hesaplama, bütçe ve telefon doğrulaması.
+- `app/globals.css`: merkezi token ve bileşen durumları; `app/demo.css`: sayfa kompozisyonları.
+- `scripts/prepare-assets.mjs`: sağlanan kaynaklardan optimize WebP kopyaları. Orijinaller korunur.
 
-## Dosyalar
+**Formlar hiçbir koşulda bilgi göndermez veya kalıcı kayıt oluşturmaz.** Örnek bilgiler kullanın. %2,58 aylık oran bir sunum varsayımıdır; vergiler, tahsis ücreti, sigorta ve diğer masraflar dahil değildir. Banka uygunluğu veya onay hesaplanmaz.
 
-- `components/landing.tsx`: demo ana sayfası.
-- `app/demo.css`: demo görsel dili ve responsive kurallar.
-- `app/globals.css`: mevcut ortak bileşen/forma ait temel stiller.
-- `components/lead-dialog.tsx`: kontrollü görüşme ve geri arama akışları.
-- `components/ui/`: shadcn/Radix bileşenleri.
-- `lib/content.ts`: kaynak arşivden ekip ve şubeler.
-- `tests/`: hesaplama ve DOM etkileşim testleri.
+Harita şematiktir; işaretler şehir merkezlerini temsil eder. Canlı pan/zoom ve kesin şube koordinatı sunulmaz. Google ve Apple bağlantıları gerçek adresi kullanır. YouTube yalnızca tıklanınca yüklenir; internet gerektirir.
 
-Bu bir tasarım denemesidir; kapsamlı üretim mimarisi veya tamamlanmış tasarım sistemi olarak sunulmaz.
+Gizlilik/aydınlatma alanı şirketin metinleri için taslaktır. Varsayılan noindex ve robots engeli korunur. Üretim için doğrulanmış HTTPS domaini `NEXT_PUBLIC_SITE_URL`, indeksleme tercihi `SITE_INDEXABLE` ile build sırasında belirlenir. Localhost canonical üretilmez.
 
-## Doğrulama
-
-Üretim derlemesi, TypeScript ve otomatik etkileşim testleri çalıştırıldı. Testler jsdom ortamında gerçek React bileşenlerini kapsar. Bulut tarayıcı zaman aşımı nedeniyle gerçek tarayıcıda masaüstü/mobil görsel inceleme tamamlanamadı. CSS geçişlerinin görünümü, video yayını ve harita sağlayıcısı uçtan uca doğrulanmadı.
+Kaynak kararları ve gerçek kontrol kapsamı: `docs/SUNUM.md`.

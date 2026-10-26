@@ -1,0 +1,6 @@
+'use client';
+import { useState } from 'react';
+import { Search } from 'lucide-react';
+import { articles } from '@/lib/articles';
+import { ArticleCards } from './article-cards';
+export function BlogList(){const [query,setQuery]=useState('');const [category,setCategory]=useState('Tümü');const filtered=articles.filter(a=>(category==='Tümü'||a.category===category)&&(a.title+' '+a.description).toLocaleLowerCase('tr').includes(query.toLocaleLowerCase('tr').trim()));return <><div className="blog-filter"><div className="filter-chips" role="group" aria-label="Yazı kategorisi">{['Tümü',...new Set(articles.map(a=>a.category))].map(c=><button key={c} aria-pressed={category===c} onClick={()=>setCategory(c)}>{c}</button>)}</div><label className="search-field"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Yazılarda ara" aria-label="Yazılarda ara"/></label></div><p className="result-count" aria-live="polite">{filtered.length} yazı</p>{filtered.length?<ArticleCards items={filtered}/>:<div className="empty-state"><h2>Bu aramada bir yazı bulamadık.</h2><button className="text-cta" onClick={()=>{setQuery('');setCategory('Tümü');}}>Filtreleri temizle</button></div>}</>;}
